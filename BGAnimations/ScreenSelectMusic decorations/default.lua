@@ -32,12 +32,12 @@ t[#t+1] = StandardDecorationFromFile( "Balloon", "Balloon" );
 t[#t+1] = Def.ActorFrame{
 	Def.ActorFrame{
 		InitCommand=cmd(draworder,99;x,SCREEN_CENTER_X+194;y,SCREEN_CENTER_Y-94);
-		NextSongMessageCommand=cmd(finishtweening;linear,0;x,SCREEN_CENTER_X+194+5;y,SCREEN_CENTER_Y-94+2;sleep,0.2;decelerate,0.2;x,SCREEN_CENTER_X+194;y,SCREEN_CENTER_Y-94);
+		PreviousSongMessageCommand=cmd(finishtweening;linear,0;x,SCREEN_CENTER_X+194+5;y,SCREEN_CENTER_Y-94+2;sleep,0.2;decelerate,0.2;x,SCREEN_CENTER_X+194;y,SCREEN_CENTER_Y-94);
 		LoadActor("RightArrow");
 	};
 	Def.ActorFrame{
 		InitCommand=cmd(draworder,99;x,SCREEN_CENTER_X-184;y,SCREEN_CENTER_Y-94);
-		PreviousSongMessageCommand=cmd(finishtweening;linear,0;x,SCREEN_CENTER_X-184-5;y,SCREEN_CENTER_Y-94+2;sleep,0.2;decelerate,0.2;x,SCREEN_CENTER_X-184;y,SCREEN_CENTER_Y-94);
+		NextSongMessageCommand=cmd(finishtweening;linear,0;x,SCREEN_CENTER_X-184-5;y,SCREEN_CENTER_Y-94+2;sleep,0.2;decelerate,0.2;x,SCREEN_CENTER_X-184;y,SCREEN_CENTER_Y-94);
 		LoadActor("LeftArrow");
 	};
 };
