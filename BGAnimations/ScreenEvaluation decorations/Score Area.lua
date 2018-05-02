@@ -31,7 +31,7 @@ for _, pn in pairs(GAMESTATE:GetEnabledPlayers()) do
 		};
     Def.Sprite{
       Texture="Player 1x2.png";
-      InitCommand=cmd(xy,-46,-27;pause;setstate,pn=="P2" and 1 or 0);
+      InitCommand=cmd(xy,pn=="PlayerNumber_P2" and 46 or -46,-27;pause;setstate,pn=="PlayerNumber_P2" and 1 or 0);
     }
   };
 end;

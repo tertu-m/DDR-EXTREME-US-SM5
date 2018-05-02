@@ -39,7 +39,7 @@ for _, pn in pairs(GAMESTATE:GetEnabledPlayers()) do
       };
     };
     LoadActor("light")..{
-      InitCommand=cmd(xy,-22,-84);
+      InitCommand=cmd(xy,pn=="PlayerNumber_P2" and 22 or -22,-84;zoomx,pn=="PlayerNumber_P2" and -1 or 1);
     };
     LoadActor("shadow")..{
       InitCommand=cmd(y,84);

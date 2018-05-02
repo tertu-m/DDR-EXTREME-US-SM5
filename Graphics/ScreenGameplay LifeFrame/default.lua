@@ -33,6 +33,19 @@ t[#t+1] = Def.ActorFrame{
 		InitCommand=cmd(blend,Blend.Add;cropright,1;diffusealpha,0.5;queuecommand,"Anim";player,PLAYER_1);
 		AnimCommand=cmd(diffusealpha,0.5;cropright,1;sleep,0.2;linear,1;cropright,0;diffusealpha,0;sleep,0.2;queuecommand,"Anim");
 	};
+	LoadActor("danger")..{
+		InitCommand=cmd(xy,40,-4;visible,false);
+		OnCommand=cmd(diffuseshift;effectcolor1,color("#858400");effectcolor2,color("#f2f305");effectperiod,1.5);
+		HealthStateChangedMessageCommand=function(self, param)
+			if GAMESTATE:IsPlayerEnabled('PlayerNumber_P1') then
+				if param.HealthState == "HealthState_Danger" then
+					self:visible(true);
+				else
+					self:visible(false);
+				end;
+			end;
+		end;
+	};
 };
 
 t[#t+1] = Def.ActorFrame{
@@ -56,6 +69,19 @@ t[#t+1] = Def.ActorFrame{
 	LoadActor("Highlight")..{
 		InitCommand=cmd(blend,Blend.Add;cropleft,1;diffusealpha,0.5;queuecommand,"Anim";player,PLAYER_2);
 		AnimCommand=cmd(diffusealpha,0.5;cropleft,1;sleep,0.2;linear,1;cropleft,0;diffusealpha,0;sleep,0.2;queuecommand,"Anim");
+	};
+	LoadActor("danger")..{
+		InitCommand=cmd(xy,-40,-4;visible,false);
+		OnCommand=cmd(diffuseshift;effectcolor1,color("#858400");effectcolor2,color("#f2f305");effectperiod,1.5);
+		HealthStateChangedMessageCommand=function(self, param)
+			if GAMESTATE:IsPlayerEnabled('PlayerNumber_P2') then
+				if param.HealthState == "HealthState_Danger" then
+					self:visible(true);
+				else
+					self:visible(false);
+				end;
+			end;
+		end;
 	};
 };
 

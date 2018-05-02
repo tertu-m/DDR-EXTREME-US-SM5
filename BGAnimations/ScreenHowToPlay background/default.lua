@@ -18,6 +18,19 @@ local t = Def.ActorFrame{
 	LoadActor("Life Under")..{
 		InitCommand=cmd(CenterX;valign,0;y,SCREEN_TOP);
 	};
+	LoadActor("Under_PlayerNumber_P1")..{
+		InitCommand=function(self)
+				elf:xy(SCREEN_CENTER_X-172,SCREEN_TOP+30):diffusealpha(0.5)
+		end;
+	};
+	LoadActor("Under_PlayerNumber_P2")..{
+		InitCommand=function(self)
+			self:xy(SCREEN_CENTER_X+172,SCREEN_TOP+30):diffusealpha(0.5)
+		end;
+	};
+};
+
+t[#t+1] = Def.ActorFrame{
 	LoadActor("stepcircle")..{
 		InitCommand=cmd(x,SCREEN_CENTER_X-116;y,SCREEN_CENTER_Y-6);
 		OnCommand=cmd(zoom,0;sleep,3.766;zoom,1;linear,0.366;zoom,0.7;sleep,0;zoom,0);
