@@ -20,7 +20,7 @@ local t = Def.ActorFrame{
 	};
 	LoadActor("Under_PlayerNumber_P1")..{
 		InitCommand=function(self)
-				elf:xy(SCREEN_CENTER_X-172,SCREEN_TOP+30):diffusealpha(0.5)
+				self:xy(SCREEN_CENTER_X-172,SCREEN_TOP+30):diffusealpha(0.5)
 		end;
 	};
 	LoadActor("Under_PlayerNumber_P2")..{
