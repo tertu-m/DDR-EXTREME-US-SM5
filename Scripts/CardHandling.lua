@@ -1,0 +1,2 @@
+local function GetCard()
+end;

@@ -1,26 +1,52 @@
 -- ScreenHowToPlay Overlay
 
-local t = Def.ActorFrame{
-	LoadActor("lifeframe")..{
-		InitCommand=cmd(CenterX;y,SCREEN_TOP+29);
-		OnCommand=cmd(draworder,99);
+local t = Def.ActorFrame{};
+
+t[#t+1] = Def.ActorFrame{
+	InitCommand=cmd(draworder,99;y,SCREEN_TOP+30);
+	Def.ActorFrame{
+		InitCommand=cmd(x,SCREEN_CENTER_X-172);
+		LoadActor(THEME:GetPathG("","ScreenGameplay LifeFrame/Frame_PlayerNumber_P1"));
+		Def.ActorFrame{
+			InitCommand=cmd(x,-126);
+			LoadActor(THEME:GetPathG("","ScreenGameplay LifeFrame/Badge_1P"));
+			LoadActor(THEME:GetPathG("","ScreenGameplay LifeFrame/Anim_Off_1P.png"))..{
+				OnCommand=function(self)
+					self:diffuse(color("0.5,0.5,0.5,1"))
+				end;
+			};
+		};
 	};
-	Def.Quad{
-		InitCommand=cmd(setsize,SCREEN_WIDTH,70;valign,1;CenterX;y,SCREEN_BOTTOM+10;diffuse,Color("Black"));
+	Def.ActorFrame{
+		InitCommand=cmd(x,SCREEN_CENTER_X+172);
+		LoadActor(THEME:GetPathG("","ScreenGameplay LifeFrame/Frame_PlayerNumber_P2"));
+		LoadActor(THEME:GetPathG("","ScreenGameplay LifeFrame/Highlight"))..{
+			InitCommand=cmd(blend,Blend.Add;cropleft,1;diffusealpha,0.5;queuecommand,"Anim");
+			AnimCommand=cmd(diffusealpha,0.5;cropleft,1;sleep,0.2;linear,1;cropleft,0;diffusealpha,0;sleep,0.2;queuecommand,"Anim");
+		};
+		Def.ActorFrame{
+			InitCommand=cmd(x,126);
+			LoadActor(THEME:GetPathG("","ScreenGameplay LifeFrame/Badge_2P"));
+			Def.Sprite{
+				InitCommand=function(self, params)
+					self:Load(THEME:GetPathG("","ScreenGameplay LifeFrame/Anim_Normal_2P 8x1.png"))
+					self:SetAllStateDelays(0.05)
+				end;
+			};
+		};
 	};
-	LoadActor("scoreframe")..{
-		InitCommand=cmd(halign,1;x,SCREEN_RIGHT;valign,1;y,SCREEN_BOTTOM+10);
-	};
+};
+
+t[#t+1] = Def.ActorFrame{
 	LoadActor("howtoplay.png")..{
 		InitCommand=cmd(Center);
 		OnCommand=cmd(cropbottom,0;sleep,1.533;linear,0.233;addy,64;cropbottom,1);
 	};
-	LoadActor("howtoplay_jp")..{
+	LoadActor("howtoplay_en")..{
 		Name="HowToPlayBig";
 		InitCommand=cmd(Center);
 		OnCommand=cmd(addy,-64;croptop,1;sleep,1.7;linear,0.233;addy,64;croptop,0;sleep,1.267;linear,0.233;addy,-64;croptop,1);
 	};
-
 	-- let the messages begin
 	Def.ActorFrame {
 		LoadActor("text_up")..{
@@ -68,9 +94,9 @@ local t = Def.ActorFrame{
 			ShowCommand=cmd(zoomy,0;sleep,18.666;decelerate,0.3;zoomy,1);
 			OnCommand=cmd(queuecommand,"Show");
 		};
-
 	};
 };
+
 --6 Right to Left Stars
 t[#t+1] = Def.ActorFrame{
 	LoadActor("../RightToLeft.png")..{

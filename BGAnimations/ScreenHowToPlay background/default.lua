@@ -4,20 +4,19 @@ local ar = GetScreenAspectRatio();
 local t = Def.ActorFrame{
 	-- bgtile
 	LoadActor("bgtile")..{
-		InitCommand=cmd(Center;zoomtowidth,SCREEN_WIDTH;zoomtoheight,SCREEN_HEIGHT);
+		InitCommand=cmd(x,SCREEN_CENTER_X;y,SCREEN_CENTER_Y;FullScreen);
 		OnCommand=function(self)
 			local w = DISPLAY:GetDisplayWidth() / self:GetWidth();
 			local h = DISPLAY:GetDisplayHeight() / self:GetHeight();
-			self:customtexturerect(0,0,w*0.5,h*0.5);
+			self:customtexturerect(0,0,w,h);
 			self:texcoordvelocity(0.6,-0.6);
 		end;
 	};
-	LoadActor("machine")..{
-		InitCommand=cmd(CenterX;y,SCREEN_CENTER_Y-4);
+	LoadActor("pad")..{
+		InitCommand=cmd(Center);
 	};
-	LoadActor("lights")..{
-		InitCommand=cmd(CenterX;y,SCREEN_CENTER_Y-117);
-		OnCommand=cmd(addy,999;sleep,5.533;addy,-999;sleep,3.367;addy,999;sleep,3.066;addy,-999;sleep,3.4;addy,999;sleep,2.033;addy,-999;sleep,0.2;addy,999;sleep,1.3;addy,-999;sleep,0.2;addy,999);
+	LoadActor("Life Under")..{
+		InitCommand=cmd(CenterX;valign,0;y,SCREEN_TOP);
 	};
 	LoadActor("stepcircle")..{
 		InitCommand=cmd(x,SCREEN_CENTER_X-116;y,SCREEN_CENTER_Y-6);

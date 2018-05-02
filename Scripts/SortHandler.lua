@@ -1,5 +1,5 @@
 -- Handles version sorts
-SortEXTREMEAC = function()
-	SONGMAN:SetPreferredSongs("EXTREMEAC")
+SortEXTREMEUS = function()
+	SONGMAN:SetPreferredSongs("EXTREMEUS")
 	return "sort,Preferred";
 end

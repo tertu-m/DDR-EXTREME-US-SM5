@@ -91,6 +91,9 @@ t[#t+1] = Def.ActorFrame{
 					if param.HealthState == "HealthState_Hot" then
 						self:Load(THEME:GetPathG("","ScreenGameplay LifeFrame/Anim_Hot_1P 3x1.png"))
 						self:SetAllStateDelays(0.1)
+					elseif param.HealthState == "HealthState_Danger" then
+						self:Load(THEME:GetPathG("","ScreenGameplay LifeFrame/Anim_Danger_1P 3x1.png"))
+						self:SetAllStateDelays(0.1)
 					else
 						self:Load(THEME:GetPathG("","ScreenGameplay LifeFrame/Anim_Normal_1P 8x1.png"))
 						self:SetAllStateDelays(0.05)
@@ -130,6 +133,9 @@ t[#t+1] = Def.ActorFrame{
 				if param.PlayerNumber == PLAYER_2 then
 					if param.HealthState == "HealthState_Hot" then
 						self:Load(THEME:GetPathG("","ScreenGameplay LifeFrame/Anim_Hot_2P 3x1.png"))
+						self:SetAllStateDelays(0.1)
+					elseif param.HealthState == "HealthState_Danger" then
+						self:Load(THEME:GetPathG("","ScreenGameplay LifeFrame/Anim_Danger_2P 3x1.png"))
 						self:SetAllStateDelays(0.1)
 					else
 						self:Load(THEME:GetPathG("","ScreenGameplay LifeFrame/Anim_Normal_2P 8x1.png"))
