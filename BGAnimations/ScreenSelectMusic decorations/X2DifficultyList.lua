@@ -152,6 +152,7 @@ local function IndicatorUpdate(self, pn)
             return
         end
     end
+    --the current difficulty isn't visible, dim it
     self:visible(true)
 		self:diffuse(color("0.5,0.5,0.5,1"))
 end
