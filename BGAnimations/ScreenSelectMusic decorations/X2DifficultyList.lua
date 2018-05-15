@@ -37,6 +37,7 @@ local function GetCurrentSteps(pn)
 	return GAMESTATE:GetCurrentSteps(pn)
 end
 
+--returns true if any player has selected this difficulty.
 local function AnyPlayerThisDiff(diff)
     for _, pn in pairs(GAMESTATE:GetEnabledPlayers()) do
         if GetCurrentSteps(pn):GetDifficulty()==diff then return true end
@@ -49,6 +50,8 @@ local function BothPlayersThisDiff(diff,self)
 	return false
 end
 
+--this isn't really that useful for Extreme US, which doesn't hide charts.
+--It is, however, useful for some later DDR games.
 local difficultiesToDraw = {
     'Difficulty_Beginner',
     'Difficulty_Easy',
@@ -57,6 +60,8 @@ local difficultiesToDraw = {
     'Difficulty_Challenge'
 }
 
+--if invDifficultiesToDraw[diff] exists, that difficulty
+--should be drawn. for speeding up something down the line
 local invDifficultiesToDraw = {}
 for k, v in pairs(difficultiesToDraw) do
     invDifficultiesToDraw[v] = k
@@ -67,9 +72,11 @@ local function PlayerLabelName(pn)
 	return 'Badges/'..name
 end
 
-
+--the vertical position where items should start to be drawn
 local startPos = LoadMetric "StartPositionY"
+--the distance between items
 local itemSpacingY = LoadMetric "ItemSpacingY"
+--offsets for various other things.
 local scorePos = LoadMetric "ScorePositionX"
 local tickPos = LoadMetric "TickPositionX"
 local plabelX = LoadMetric "PlayerLabelXOffset"
@@ -77,6 +84,7 @@ local plabelX = LoadMetric "PlayerLabelXOffset"
 local lastSong = nil
 local lastSteps = {PlayerNumber_P1=nil, PlayerNumber_P2=nil}
 
+--calculates the Y position for the pill corresponding to the given difficulty
 local function DiffToYPos(diff)
 	if invDifficultiesToDraw[diff] == nil then return nil end
 	return startPos + ( itemSpacingY*( invDifficultiesToDraw[diff]-1) )
@@ -98,6 +106,11 @@ local function SetXFromPlayerNumberScore(that, pn)
 	end
 end
 
+--This is an update function and runs every frame.
+--Check to see if either player has changed steps or the current song has changed.
+--If so, some items probably need to be updated, so broadcast the SNDLUpdate message
+--so they can update themselves if needed.
+--SNDL stands for "SuperNOVA Difficulty List", which is where this code came from.
 local function Update(self, _)
 	if GAMESTATE then
 		local song = GAMESTATE:GetCurrentSong()
@@ -116,9 +129,12 @@ local function Update(self, _)
 	end
 end
 
+--This is the final actor frame everything ends up in.
 local ret = Def.ActorFrame{InitCommand=function(self) self:xy(SCREEN_CENTER_X+4,SCREEN_CENTER_Y+100):draworder(2):queuecommand("On"):SetUpdateFunction(Update) end,
     }
 
+--This updates the position of each player's currently selected item indicator.
+--It is called in the SNDL update handlers for each of the badges.
 local function IndicatorUpdate(self, pn)
     if not GAMESTATE:IsPlayerEnabled(pn) then return end
     self:finishtweening()
@@ -140,13 +156,17 @@ local function IndicatorUpdate(self, pn)
 		self:diffuse(color("0.5,0.5,0.5,1"))
 end
 
-
+--Creating a bunch of ActorFrames makes getting children harder, which was a
+--concern when this code was originally being written. I still think they don't
+--need to be there.
 local function AddContentsToOutput(tbl)
     for _, e in pairs(tbl) do
         table.insert(ret, e)
     end
 end
 
+--create the player difficulty labels.
+--(the do blocks are there so these chunks of code can have their own local variables)
 do
     local indicatorBackgrounds = {}
     local indicatorLabels = {}
@@ -155,6 +175,10 @@ do
             Name='PlayerLabel',
             InitCommand=function(self) SetXFromPlayerNumber(self:visible(false), pn) self:zoom(1) end,
             SNDLUpdateMessageCommand=function(self) return IndicatorUpdate(self, pn) end,
+            --ResolveRelativePath converts a local path into an absolute path
+            --Sprite:Load does not work on local paths.
+            --Also the function of this message is to replace a CPU label
+            --with the appropriate player label for Battle
             PlayerJoinedMessageCommand=function(self,p)
                 if p.Player==pn then self:Load(ResolveRelativePath(PlayerLabelName(pn),1)) end
             end
@@ -164,11 +188,14 @@ do
     AddContentsToOutput(indicatorLabels)
 end
 
+--this is done once for each player to have separate full combo rings
 for _, pn in pairs(GAMESTATE:GetEnabledPlayers()) do
+--draw the difficulty labels.
 for idx, diff in pairs(difficultiesToDraw) do
 	local element = Def.ActorFrame{
 		OnCommand=cmd(diffusealpha,1);
 		Name = "Row"..diff,
+		--this is a leftover from long ago
 		SNDLUpdateMessageCommand = function(self) for _, item in pairs(self:GetChildren()) do item:queuecommand("Update") end end,
 		InitCommand=function(self) self:y(DiffToYPos(diff) ) end,
 		Def.Sprite{
@@ -179,16 +206,21 @@ for idx, diff in pairs(difficultiesToDraw) do
 				local song = GAMESTATE:GetCurrentSong()
 				if song then
 					if AnyPlayerThisDiff(diff) then
+						--difficulty currently selected. leftover from X2, where the item would
+						--set a color in this case.
 						self:setstate(idx-1):SetAllStateDelays(math.huge)
 						self:diffuse(color("1,1,1,1"))
 					elseif song:HasStepsTypeAndDifficulty(GAMESTATE:GetCurrentStyle():GetStepsType(), diff) then
+						--difficulty present but not selected
 						self:setstate(idx-1):SetAllStateDelays(math.huge)
 						self:diffuse(color("1,1,1,1"))
 					else
+						--difficulty not present
 						self:setstate(idx-1):SetAllStateDelays(math.huge)
 						self:diffuse(color("0.5,0.5,0.5,1"))
 					end
 				else
+					--no song selected, so act like there are no difficulties present
 					self:setstate(idx-1):SetAllStateDelays(math.huge)
 					self:diffuse(color("0.5,0.5,0.5,1"))
 					self:diffusealpha(1)
@@ -200,6 +232,7 @@ for idx, diff in pairs(difficultiesToDraw) do
 				Texture = "ticks",
 				InitCommand = function(self) self:x(tickPos):y(-12):skewx(-0.9):diffuse(DiffToColor(diff)):halign(0):cropright(1):draworder(2) end,
 				SNDLUpdateMessageCommand=function(self, params)
+					--if there is a song and a chart for it, show the meter, otherwise show nothing
 					local song = GAMESTATE:GetCurrentSong()
 					if song then
 						local steps = song:GetOneSteps(GAMESTATE:GetCurrentStyle():GetStepsType(), diff)
@@ -214,6 +247,7 @@ for idx, diff in pairs(difficultiesToDraw) do
 					end
 				end,
 				CurrentSongChangedMessageCommand=function(self, params)
+					--same as above
 					local song = GAMESTATE:GetCurrentSong()
 					if song then
 						local steps = song:GetOneSteps(GAMESTATE:GetCurrentStyle():GetStepsType(), diff)
@@ -229,6 +263,7 @@ for idx, diff in pairs(difficultiesToDraw) do
 					end
 				end,
 		},
+		--high score circle
 		LoadActor("Grades/FC_Circle")..{
 			InitCommand=function(self) SetXFromPlayerNumberScore(self:visible(false), pn) self:visible(false):xy(58,-2) end,
 			SNDLUpdateMessageCommand=function(self, params)
@@ -239,6 +274,7 @@ for idx, diff in pairs(difficultiesToDraw) do
 					if PROFILEMAN:IsPersistentProfile(pn) then
 						profile = PROFILEMAN:GetProfile(pn);
 					else
+						--fall back on the machine profile if there is no profile
 						profile = PROFILEMAN:GetMachineProfile();
 					end;
 					scorelist = profile:GetHighScoreList(song,steps);
@@ -254,11 +290,16 @@ for idx, diff in pairs(difficultiesToDraw) do
 
 					local temp=#scores;
 					if scores[1] then
+						--this skips blank high scores, but there won't be any
+						--until after the last valid high score i think
+						--only one score is actually checked
 						for i=1, temp do
-
 							if scores[i] then
 								topscore = scores[i];
 								assert(topscore);
+								--even though in StepMania dropping holds/rolls 
+								--doesn't break combo, we don't want to show the
+								--FC badge unless the player didn't do that
 								local misses = topscore:GetTapNoteScore("TapNoteScore_Miss")+topscore:GetTapNoteScore("TapNoteScore_CheckpointMiss")
 												+topscore:GetTapNoteScore("TapNoteScore_HitMine")+topscore:GetHoldNoteScore("HoldNoteScore_LetGo")
 								local boos = topscore:GetTapNoteScore("TapNoteScore_W5")
@@ -266,6 +307,7 @@ for idx, diff in pairs(difficultiesToDraw) do
 								local greats = topscore:GetTapNoteScore("TapNoteScore_W3")
 								local perfects = topscore:GetTapNoteScore("TapNoteScore_W2")
 								local marvelous = topscore:GetTapNoteScore("TapNoteScore_W1")
+								--filter out blank scores
 								if (misses+boos+goods) == 0 and scores[i]:GetScore() > 0 and (marvelous+perfects+greats)>0 then
 									self:visible(true)
 									break;
@@ -286,6 +328,7 @@ for idx, diff in pairs(difficultiesToDraw) do
 				end
 			end;
 		};
+		--grade
 		Def.Quad{
 			InitCommand=function(self) SetXFromPlayerNumberScore(self:visible(false), pn) self:visible(false):xy(58,-2) end,
 			SNDLUpdateMessageCommand=function(self, params)
@@ -311,13 +354,17 @@ for idx, diff in pairs(difficultiesToDraw) do
 					if scores[1] then
 						topgrade = scores[1]:GetGrade();
 						assert(topgrade);
+						--show nothing unless points were actually earned
 						if scores[1]:GetScore()>1 then
+							--i don't think this condition will ever be true
 							if scores[1]:GetScore()==1000000 and topgrade=="Grade_Tier07" then
 								self:Load(THEME:GetPathB("","ScreenSelectMusic decorations/Grades/Diff Tier01"));
 								self:visible(true)
+							--show E for a very bad passing score
 							elseif topgrade=="Grade_Tier07" or topgrade=="Grade_Failed" then
 								self:visible(true)
 								self:Load(THEME:GetPathB("","ScreenSelectMusic decorations/Grades/Diff Failed"));
+							--hide grades this theme doesn't support
 							elseif topgrade >= "Grade_Tier08" then
 								self:visible(false)
 							else
@@ -340,6 +387,7 @@ for idx, diff in pairs(difficultiesToDraw) do
 				end
 			end;
 		},
+		--high score star. code is identical to the high score circle
 		Def.Sprite{
 			Texture="Grades/FC_Star 4x1.png";
 			InitCommand=function(self) SetXFromPlayerNumberScore(self:visible(false), pn) self:visible(false):xy(70,-10):SetAllStateDelays(0.4) end,
